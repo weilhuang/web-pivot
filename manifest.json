@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "web-pivot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Compare webpage elements. \n对比网页内容. \nhttps://github.com/wl2027/web-pivot",
   "permissions": ["activeTab", "scripting", "storage"],
   "background": {

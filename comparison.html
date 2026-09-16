@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Comparison</title>
+    <link rel="stylesheet" href="comparison.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <img src="icons/web-pivot-logo-48.png" alt="">
+            <div>
+                <h1 id="pageTitle">Content Comparison</h1>
+                <p id="pageSubtitle" class="muted"></p>
+            </div>
+        </div>
+        <div class="legend" aria-label="Diff legend">
+            <span class="legend-item removed"><i></i><span id="legendRemoved">Removed</span></span>
+            <span class="legend-item added"><i></i><span id="legendAdded">Added</span></span>
+        </div>
+    </header>
+
+    <main class="panes">
+        <section class="pane pane-left">
+            <header class="pane-head">
+                <span class="pane-index">1</span>
+                <div class="pane-copy">
+                    <h2 id="leftTitle">Content 1</h2>
+                    <p class="pane-source" id="leftSource"></p>
+                </div>
+            </header>
+            <div class="pane-body" id="leftBody"></div>
+        </section>
+        <section class="pane pane-right">
+            <header class="pane-head">
+                <span class="pane-index">2</span>
+                <div class="pane-copy">
+                    <h2 id="rightTitle">Content 2</h2>
+                    <p class="pane-source" id="rightSource"></p>
+                </div>
+            </header>
+            <div class="pane-body" id="rightBody"></div>
+        </section>
+    </main>
+    <script src="comparison.js"></script>
+</body>
+</html>
