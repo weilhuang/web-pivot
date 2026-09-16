@@ -28,6 +28,7 @@
 html,
 body {
     margin: 0;
+    background: var(--bg);
 }
 
 body {
@@ -221,7 +222,7 @@ h1 {
 }
 
 .source {
-    margin: -2px 0 8px;
+    margin: 0 0 10px;
     color: var(--muted);
     font-size: 11px;
     white-space: nowrap;
@@ -256,6 +257,7 @@ h1 {
 .btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .btn-secondary {

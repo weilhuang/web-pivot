@@ -1,5 +1,8 @@
 const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
-const hasChrome = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+const hasChrome = typeof chrome !== 'undefined'
+    && chrome.storage
+    && chrome.storage.local
+    && typeof chrome.storage.local.get === 'function';
 
 document.documentElement.lang = lang;
 
@@ -46,8 +49,10 @@ function fillPane(titleId, sourceId, bodyId, html, meta, translations) {
         link.rel = 'noopener noreferrer';
         link.textContent = formatSource(meta, translations.unknownSource || 'Current page');
         source.appendChild(link);
-    } else {
+    } else if (html) {
         source.textContent = translations.unknownSource || '';
+    } else {
+        source.textContent = '';
     }
 
     if (!html) {

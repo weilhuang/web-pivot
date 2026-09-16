@@ -1,5 +1,8 @@
 const lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
-const hasChrome = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+const hasChrome = typeof chrome !== 'undefined'
+    && chrome.storage
+    && chrome.storage.local
+    && typeof chrome.storage.local.get === 'function';
 
 let translations = {};
 let content1 = null;
@@ -96,7 +99,7 @@ function showBanner(message, type) {
     clearTimeout(bannerTimer);
     bannerTimer = setTimeout(() => {
         banner.hidden = true;
-    }, 2800);
+    }, 3500);
 }
 
 function slotState(slotNumber) {
@@ -242,18 +245,11 @@ document.getElementById('clearContent').addEventListener('click', () => {
     selectingSlot = null;
     selectionLocked = false;
     renderSlots();
+    showBanner(t('clearedMessage', 'Selections cleared.'), 'info');
 
-    if (!hasChrome) {
-        showBanner(t('clearedMessage', 'Selections cleared.'), 'info');
-        return;
+    if (hasChrome) {
+        chrome.storage.local.remove(['selectedElement1', 'selectedElement2', 'selectingSlot', 'comparisonResult']);
     }
-
-    chrome.storage.local.remove(
-        ['selectedElement1', 'selectedElement2', 'selectingSlot', 'comparisonResult'],
-        () => {
-            showBanner(t('clearedMessage', 'Selections cleared.'), 'info');
-        }
-    );
 });
 
 document.getElementById('compareContent').addEventListener('click', () => {
