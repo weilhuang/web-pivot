@@ -1,4 +1,3 @@
-// 检查全局变量是否已经定义
 if (typeof isSelecting === 'undefined') {
     var isSelecting = false;
 }
@@ -11,54 +10,60 @@ if (typeof currentContentType === 'undefined') {
     var currentContentType = null;
 }
 
-// 监听消息
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'startSelect') {
-        if (isSelecting) {
-            cancelSelection(); // 取消当前的选择
-        }
-        isSelecting = true;
-        currentContentType = message.contentType;
-        startSelectingElement(currentContentType);
-    }
-});
+if (typeof toastSuccess1 === 'undefined') {
+    var toastSuccess1 = '';
+}
 
-// 取消选择操作的函数
+if (typeof toastSuccess2 === 'undefined') {
+    var toastSuccess2 = '';
+}
+
+if (typeof webPivotListenerBound === 'undefined') {
+    var webPivotListenerBound = true;
+
+    chrome.runtime.onMessage.addListener((message) => {
+        if (message.action === 'startSelect') {
+            if (isSelecting) {
+                cancelSelection();
+            }
+            isSelecting = true;
+            currentContentType = message.contentType;
+            toastSuccess1 = message.toastSuccess1 || '';
+            toastSuccess2 = message.toastSuccess2 || '';
+            startSelectingElement();
+        }
+    });
+}
+
 function cancelSelection() {
     isSelecting = false;
     currentContentType = null;
 
-    // 移除事件监听器
     document.removeEventListener('mousemove', highlightElement);
     document.removeEventListener('click', selectElement);
 
-    // 清除高亮
     if (selectedElement) {
         selectedElement.style.backgroundColor = '';
         selectedElement.style.outline = '';
     }
 }
 
-function startSelectingElement(contentType) {
-    // 鼠标悬停时高亮显示
+function startSelectingElement() {
     document.addEventListener('mousemove', highlightElement);
-    // 鼠标点击选择元素
     document.addEventListener('click', selectElement);
 }
 
 function highlightElement(event) {
     if (!isSelecting) return;
 
-    // 移除之前的高亮
     if (selectedElement) {
         selectedElement.style.backgroundColor = '';
         selectedElement.style.outline = '';
     }
 
     selectedElement = event.target;
-    // 高亮整个选择区域
-    selectedElement.style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
-    selectedElement.style.outline = '3px solid red';
+    selectedElement.style.backgroundColor = 'rgba(61, 90, 254, 0.16)';
+    selectedElement.style.outline = '2px solid #3d5afe';
 }
 
 function selectElement(event) {
@@ -66,36 +71,75 @@ function selectElement(event) {
     event.stopPropagation();
     if (!isSelecting) return;
 
-    const selectedElement = event.target;
-    if (selectedElement) {
-        selectedElement.style.backgroundColor = '';
-        selectedElement.style.outline = '';
+    const target = event.target;
+    if (target) {
+        target.style.backgroundColor = '';
+        target.style.outline = '';
     }
 
-    const selectedHtmlWithStyles = getHtmlWithInlineStyles(selectedElement);
+    const selectedType = currentContentType;
+    const selectedHtmlWithStyles = getHtmlWithInlineStyles(target);
+    const preview = (target.innerText || target.textContent || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 240);
 
     const elementData = {
-        html: selectedHtmlWithStyles
+        html: selectedHtmlWithStyles,
+        url: location.href,
+        title: document.title,
+        preview
     };
 
     chrome.runtime.sendMessage({
         type: 'elementSelected',
-        elemNumber: currentContentType === 'content1' ? 1 : 2,
+        elemNumber: selectedType === 'content1' ? 1 : 2,
         element: elementData
     });
 
     cancelSelection();
-    alert(currentContentType===null?'success':(currentContentType === 'content1' ? '内容1已选择' : '内容2已选择'));
+    showPageToast(
+        selectedType === 'content1'
+            ? toastSuccess1 || (navigator.language.startsWith('zh') ? '内容 1 已选择。' : 'Content 1 selected.')
+            : toastSuccess2 || (navigator.language.startsWith('zh') ? '内容 2 已选择。' : 'Content 2 selected.')
+    );
 }
 
-// 提取HTML并将所有计算的样式转换为内联样式
+function showPageToast(message) {
+    const existing = document.getElementById('web-pivot-toast');
+    if (existing) existing.remove();
+
+    const el = document.createElement('div');
+    el.id = 'web-pivot-toast';
+    el.textContent = message;
+    el.setAttribute(
+        'style',
+        [
+            'position:fixed',
+            'z-index:2147483647',
+            'left:50%',
+            'bottom:24px',
+            'transform:translateX(-50%)',
+            'background:#1c2430',
+            'color:#fff',
+            'padding:10px 16px',
+            'border-radius:10px',
+            'font:13px/1.4 Segoe UI,PingFang SC,Noto Sans SC,sans-serif',
+            'box-shadow:0 8px 24px rgba(0,0,0,.18)',
+            'pointer-events:none',
+            'max-width:min(420px,calc(100vw - 32px))'
+        ].join(';')
+    );
+    document.documentElement.appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+}
+
 function getHtmlWithInlineStyles(element) {
     const clone = element.cloneNode(true);
     applyInlineStyles(clone);
     return clone.outerHTML;
 }
 
-// 将计算的样式应用为内联样式
 function applyInlineStyles(element) {
     const computedStyle = getComputedStyle(element);
 
